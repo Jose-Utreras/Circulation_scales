@@ -252,10 +252,10 @@ def Vorticity_curve(R,Vo,R1,R2):
     return result
 
 cmdargs = sys.argv
-L=float(cmdargs[-1])                        # Image size in parsecs
-name_file=cmdargs[-2]
+name_file=cmdargs[-1]
 
 dir=str(np.loadtxt('Input.txt',usecols=(0),dtype=bytes).astype(str))
+L=np.loadtxt('Input.txt',usecols=(1),dtype=float)
 
 directory=dir+'/'+name_file+'/G-'+name_file[-4:]
 

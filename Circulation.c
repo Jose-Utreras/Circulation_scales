@@ -58,10 +58,10 @@ main(int argc, char* argv[]) {
 		int scales[N_scales];
 
 		float **vort_map = (float **)malloc(Ngrids * sizeof(float*));
-		for(int i = 0; i < Ngrids; i++) vort_map[i] = (float *)malloc(Ngrids * sizeof(float));
+		for(i = 0; i < Ngrids; i++) vort_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
 		float **omeg_map = (float **)malloc(Ngrids * sizeof(float*));
-		for(int i = 0; i < Ngrids; i++) omeg_map[i] = (float *)malloc(Ngrids * sizeof(float));
+		for(i = 0; i < Ngrids; i++) omeg_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
 		///// Saving vorticity map in matrix ////
 		FILE *arx;

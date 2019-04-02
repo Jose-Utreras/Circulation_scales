@@ -186,10 +186,10 @@ def Vorticity_profile(V,R,DR,Rmin,Rmax,function):
     return x,y
 
 cmdargs = sys.argv
-L=float(cmdargs[-1])                        # Image size in parsecs
-name_file=cmdargs[-2]
+name_file=cmdargs[-1]
 
 dir=str(np.loadtxt('Input.txt',usecols=(0),dtype=bytes).astype(str))
+L=np.loadtxt('Input.txt',usecols=(1),dtype=float)
 
 directory=dir+'/'+name_file+'/G-'+name_file[-4:]
 
@@ -204,6 +204,12 @@ dr=DX/grids
 NN=int(L/dr)
 dA=((L/NN)**2)
 
+
+input=np.loadtxt('Input.txt',dtype=str)
+if len(input)==8:
+    input=np.insert(input,2,'%d' %NN)
+    np.savetxt('Input.txt',np.atleast_2d(input),fmt='%s',delimiter='\t')
+"""
 Disk = ds.disk('c', [0., 0., 1.],(L/1.0e3, 'kpc'), (1, 'kpc'))
 
 VC=Disk['vc'].in_units("pc/Myr")
@@ -246,3 +252,4 @@ frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
 imsigma=frb['density'].in_units('Msun/pc**2')
 
 np.savetxt('Maps/'+name_file+'_sigma.txt',imsigma,fmt="%.4e",delimiter='\t')
+"""
