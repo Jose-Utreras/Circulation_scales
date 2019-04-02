@@ -38,7 +38,7 @@ main(int argc, char* argv[]) {
 		ierr = MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
 		int i, j, k, knew, counter, pix_counter;
-		double area, vort, omeg, radius;
+		double area, model, expan, radius;
 		int scale_min, scale_max, scale_i, scale_aux, step, is, js;
 		int N_tent, N_scales;
 		double jump;
@@ -57,33 +57,33 @@ main(int argc, char* argv[]) {
 		N_scales=N_tent;
 		int scales[N_scales];
 
-		float **vort_map = (float **)malloc(Ngrids * sizeof(float*));
-		for(int i = 0; i < Ngrids; i++) vort_map[i] = (float *)malloc(Ngrids * sizeof(float));
+		float **model_map = (float **)malloc(Ngrids * sizeof(float*));
+		for(int i = 0; i < Ngrids; i++) model_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
-		float **omeg_map = (float **)malloc(Ngrids * sizeof(float*));
-		for(int i = 0; i < Ngrids; i++) omeg_map[i] = (float *)malloc(Ngrids * sizeof(float));
+		float **exp_map = (float **)malloc(Ngrids * sizeof(float*));
+		for(int i = 0; i < Ngrids; i++) exp_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
-		///// Saving vorticity map in matrix ////
+		///// Saving modelicity map in matrix ////
 		FILE *arx;
     char* map_file	= concat("Maps/", name);
-    map_file        = concat(map_file,"_vort.txt");
+    map_file        = concat(map_file,"_model.txt");
     arx 						= fopen(map_file,"r");
 
 		for(i = 0; i < Ngrids; i++){
     		for (j = 0 ; j < Ngrids; j++){
-      			fscanf(arx,"%f",&vort_map[i][j]);
+      			fscanf(arx,"%f",&model_map[i][j]);
     		}}
   	fclose(arx);
 		//////////////////////////////////////////
 
 		///// Saving average map in matrix ////
 		map_file	= concat("Maps/", name);
-		map_file  = concat(map_file,"_av_vort.txt");
+		map_file  = concat(map_file,"_exp.txt");
 		arx 			= fopen(map_file,"r");
 
 		for(i = 0; i < Ngrids; i++){
 				for (j = 0 ; j < Ngrids; j++){
-						fscanf(arx,"%f",&omeg_map[i][j]);
+						fscanf(arx,"%f",&exp_map[i][j]);
 				}}
 		fclose(arx);
 		//////////////////////////////////////////
@@ -131,7 +131,7 @@ main(int argc, char* argv[]) {
 
 		char outname[sizeof "_100.txt"];
 		sprintf(outname, "_%03d.txt", my_id);
-		map_file        = concat(map_file,"_vort");
+		map_file        = concat(map_file,"_other");
 		map_file        = concat(map_file,outname);
 		arx       	    = fopen(map_file,"w");
 
@@ -147,10 +147,10 @@ main(int argc, char* argv[]) {
 						if ((pix_counter-my_id)%num_procs==0){
 						//printf("%d\t %d\t %d\t %d\t %f\n",i,j,my_id,pix_counter,radius);
 
-						vort	=	vort_map[i][j];
-						omeg	=	omeg_map[i][j];
+						model	=	model_map[i][j];
+						expan	=	exp_map[i][j];
 						area	=	1.0;
-						fprintf(arx, "%d\t %.4e\t %.3e\t %.3e", pix_counter, radius ,vort, omeg);
+						fprintf(arx, "%d\t %.4e\t %.3e\t %.3e", pix_counter, radius ,model, expan);
 						knew	=	1;
 						for(k = 1; k < N_scales; k++){
 
@@ -165,31 +165,31 @@ main(int argc, char* argv[]) {
 									if(abs(is)==step){
 										for(js = -step; js <= step; js++){
 											if(abs(js)==step){
-												if(knew%2!=0){vort+=0.75*vort_map[i+is][j+js];
-																			omeg+=0.75*omeg_map[i+is][j+js];
+												if(knew%2!=0){model+=0.75*model_map[i+is][j+js];
+																			expan+=0.75*exp_map[i+is][j+js];
 																			area+=0.75;}
-												else{ vort+=0.25*vort_map[i+is][j+js];
-															omeg+=0.25*omeg_map[i+is][j+js];
+												else{ model+=0.25*model_map[i+is][j+js];
+															expan+=0.25*exp_map[i+is][j+js];
 															area+=0.25;}
 											}
-											else{ vort+=0.5*vort_map[i+is][j+js];
-														omeg+=0.5*omeg_map[i+is][j+js];
+											else{ model+=0.5*model_map[i+is][j+js];
+														expan+=0.5*exp_map[i+is][j+js];
 														area+=0.5;}
 										}}
 
-									else{	vort+=0.5*vort_map[i+is][j+step];
-												omeg+=0.5*omeg_map[i+is][j+step];
+									else{	model+=0.5*model_map[i+is][j+step];
+												expan+=0.5*exp_map[i+is][j+step];
 												area+=0.5;
 
-											 	vort+=0.5*vort_map[i+is][j-step];
-												omeg+=0.5*omeg_map[i+is][j-step];
+											 	model+=0.5*model_map[i+is][j-step];
+												expan+=0.5*exp_map[i+is][j-step];
 												area+=0.5;}
 
 								}/*for is*/
 								//if(k==20)printf("area %f\t %f\n", sqrt(area), area);
 								}while(knew<scale_i);
 
-								fprintf(arx, "\t %.3e \t %.3e" , vort/area, omeg/area);
+								fprintf(arx, "\t %.3e \t %.3e" , model/area, expan/area);
 						 }/*for k*/ fprintf(arx, "\n" );}/*if Rmax*/
 					 }/* which core */
 				}//if(pix_counter>1000)break;

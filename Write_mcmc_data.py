@@ -1,14 +1,11 @@
 import numpy as np
-from astropy.nddata.utils import block_reduce
 import os , sys, glob
-from common_functions import simple_symmetric_map, correct_map, clean_data, gaussian, Smooth, shift_image
-from scipy.special import erf
+from common_functions import  gaussian, Smooth
 import subprocess
 from scipy.optimize import curve_fit
 from subprocess import check_output
 import time
 from scipy.interpolate import interp1d
-from astropy.table import Table , Column ,vstack,hstack
 
 eta=2*0.6744897501
 kms_to_pcmyr=1.022
@@ -56,24 +53,8 @@ Radius      = Tabla[:,1]
 ring        = (Radius>=Rmin)&(Radius<=Rmax)
 Tabla       = Tabla[ring]
 
-if av_file=='model':
-    Tabla2      = np.loadtxt('Files/'+name_file+'_model.txt')
-    Radius      = Tabla2[:,1]
-    ring        = (Radius>=Rmin)&(Radius<=Rmax)
-    Tabla2      = Tabla2[ring]
-
-    del Radius
-
-    ID          = Tabla[:,0]
-    Tabla=Tabla[ID.argsort()]
-    del ID
-
-    ID          = Tabla2[:,0]
-    Tabla2=Tabla2[ID.argsort()]
-    del ID
-
-elif (av_file=='exp')or(av_file=='expansion'):
-    Tabla2      = np.loadtxt('Files/'+name_file+'_exp.txt')
+if (av_file=='model')|(av_file=='exp')|(av_file=='expansion'):
+    Tabla2      = np.loadtxt('Files/'+name_file+'_other.txt')
     Radius      = Tabla2[:,1]
     ring        = (Radius>=Rmin)&(Radius<=Rmax)
     Tabla2      = Tabla2[ring]
@@ -95,7 +76,9 @@ for i, R in enumerate(scales):
 
     vort                = Tabla[:,2+2*i]
 
-    if (av_file=='model')|(av_file=='exp')|(av_file=='expansion'):
+    if (av_file=='model'):
+        omeg            = Tabla2[:,2+2*i]
+    elif(av_file=='exp')|(av_file=='expansion'):
         omeg            = Tabla2[:,3+2*i]
     else:
         omeg            = Tabla[:,3+2*i]
