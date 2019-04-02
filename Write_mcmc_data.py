@@ -18,10 +18,10 @@ cmdargs = sys.argv
 R1=cmdargs[-2]
 R2=cmdargs[-1]
 
-Rmax        =   float(cmdargs[-1])
-Rmin        =   float(cmdargs[-2])
-
-name_file   =   cmdargs[-3]
+av_file     =   cmdargs[-1]
+Rmax        =   float(cmdargs[-2])
+Rmin        =   float(cmdargs[-3])
+name_file   =   cmdargs[-4]
 
 #L , N, n1_min, n1_max, n2_min, n2_max, dv_min, dv_max  = np.loadtxt('Files/'+name_file+'_data.txt',unpack=True)
 
@@ -56,14 +56,49 @@ Radius      = Tabla[:,1]
 ring        = (Radius>=Rmin)&(Radius<=Rmax)
 Tabla       = Tabla[ring]
 
-print(Radius[ring])
-print(len(Radius[ring]),Rmin,Rmax)
+if av_file=='model':
+    Tabla2      = np.loadtxt('Files/'+name_file+'_model.txt')
+    Radius      = Tabla2[:,1]
+    ring        = (Radius>=Rmin)&(Radius<=Rmax)
+    Tabla2      = Tabla2[ring]
+
+    del Radius
+
+    ID          = Tabla[:,0]
+    Tabla=Tabla[ID.argsort()]
+    del ID
+
+    ID          = Tabla2[:,0]
+    Tabla2=Tabla2[ID.argsort()]
+    del ID
+
+elif (av_file=='exp')or(av_file=='expansion'):
+    Tabla2      = np.loadtxt('Files/'+name_file+'_exp.txt')
+    Radius      = Tabla2[:,1]
+    ring        = (Radius>=Rmin)&(Radius<=Rmax)
+    Tabla2      = Tabla2[ring]
+
+    del Radius
+
+    ID          = Tabla[:,0]
+    Tabla=Tabla[ID.argsort()]
+    del ID
+
+    ID          = Tabla2[:,0]
+    Tabla2=Tabla2[ID.argsort()]
+    del ID
+
+
 for i, R in enumerate(scales):
     print(R)
     c_sig               = sigma_t/R**1.5
 
     vort                = Tabla[:,2+2*i]
-    omeg                = Tabla[:,3+2*i]
+
+    if (av_file=='model')|(av_file=='exp')|(av_file=='expansion'):
+        omeg            = Tabla2[:,3+2*i]
+    else:
+        omeg            = Tabla[:,3+2*i]
 
     mapa    = vort-omeg
     mapa   -= np.mean(mapa)
