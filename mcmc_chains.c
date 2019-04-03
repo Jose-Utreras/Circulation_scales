@@ -35,24 +35,24 @@ double uniform(double minimo, double maximo){
   return minimo+(maximo-minimo)*rand()/(1.0*RAND_MAX);
 }
 
-double walker(char *name, char *snapshot,double n1_min , double n1_max, double n2_min , double n2_max, double pc_min, double pc_max, 
+double walker(char *name, char *snapshot,double n1_min , double n1_max, double n2_min , double n2_max, double pc_min, double pc_max,
   double dv_min, double dv_max,
   double pmin, double pmax, int Nbins, double dx,float *sigma, float *delta, float *error, int steps, int id){
         printf("This is the %03d\t sampler \n ", id);
-    
+
 
     FILE *output;
-    char outname[sizeof "_third100.txt"];
-    sprintf(outname, "_third%03d.txt", id);
-    char* outpar = concat("Files_model_2/", name);
+    char outname[sizeof "_chain100.txt"];
+    sprintf(outname, "_chain%03d.txt", id);
+    char* outpar = concat("Chains/", name);
     outpar       = concat(outpar,outname);
-    output       = fopen(outpar,"w"); 
+    output       = fopen(outpar,"w");
 
     FILE *arx;
     char* parameters;
     char filename[sizeof "_sampler100.txt"];
-    
-    float pc,pc_b;        
+
+    float pc,pc_b;
   	double n1  , n2 , fc  , dv, prob  ;
     double n1_b, n2_b, fc_b, dv_b, prob_b, accept_rate;
 	double alpha, rnd, numerator, denominator;
@@ -73,7 +73,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
     double* tab_8 = malloc(Nbins*sizeof(double*));
     double* temp  = malloc(Nbins*sizeof(double*));
 
-        
+
     double mu1,mu2,mu3,mu4;
     double sd1,sd2,sd3,sd4;
     double n11,n21,pc1;
@@ -91,9 +91,9 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
     int iline;
 
 	/***********************
-	 * First random numbers 	
+	 * First random numbers
 	************************/
-	
+
     n1=uniform(n1_min,n1_max);
     n2=uniform(n2_min,n2_max);
     pc=uniform(pc_min,pc_max);
@@ -125,11 +125,11 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
             do{pc=pc_b+0.6*sqrt(-2.0*sd3*log(uniform(0,1)))*cos(6.28318530718*uniform(0,1));}while((pc<pc_min)||(pc>pc_max));
             do{dv=dv_b+0.6*sqrt(-2.0*sd4*log(uniform(0,1)))*cos(6.2831853*uniform(0,1));}while((dv<dv_min)||(dv>dv_max));
             }
-        
-        aux= 1.0*(N-1)*1.0*(n1-n1_min)/(n1_max-n1_min); 
+
+        aux= 1.0*(N-1)*1.0*(n1-n1_min)/(n1_max-n1_min);
 
         l1 = (int) aux;
-        u1 = l1+1;  
+        u1 = l1+1;
 
         number_file = l1/3;
 
@@ -147,12 +147,12 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
 
         l3 = (int) aux;
         i3 = l3;
-	
+
         sprintf(filename, "_sampler%03d.txt", number_file);
-        parameters = concat("Files_model_2/", snapshot);
+        parameters = concat("Samplers/", snapshot);
         parameters       = concat(parameters,filename);
         arx = fopen(parameters,"r");
-        
+
         iline = 0;
         while (fgets(line, sizeof(line), arx)) {
             iline++;
@@ -165,7 +165,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
                     &n11,&n21,&pc1,&tab_1[0],&tab_1[1],&tab_1[2],&tab_1[3],&tab_1[4],&tab_1[5],&tab_1[6],&tab_1[7],&tab_1[8],&tab_1[9],
                     &tab_1[10],&tab_1[11],&tab_1[12],&tab_1[13],&tab_1[14],&tab_1[15],&tab_1[16],&tab_1[17],&tab_1[18],&tab_1[19],
                     &tab_1[20],&tab_1[21],&tab_1[22],&tab_1[23],&tab_1[24],&tab_1[25],&tab_1[26],&tab_1[27],&tab_1[28],&tab_1[29],
-                    &tab_1[30],&tab_1[31],&tab_1[32],&tab_1[33],&tab_1[34],&tab_1[35],&tab_1[36],&tab_1[37],&tab_1[38],&tab_1[39], 
+                    &tab_1[30],&tab_1[31],&tab_1[32],&tab_1[33],&tab_1[34],&tab_1[35],&tab_1[36],&tab_1[37],&tab_1[38],&tab_1[39],
                     &tab_1[40],&tab_1[41],&tab_1[42],&tab_1[43],&tab_1[44],&tab_1[45],&tab_1[46],&tab_1[47],&tab_1[48],&tab_1[49],
                     &tab_1[50]);}
 
@@ -189,10 +189,10 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
                     &tab_3[20],&tab_3[21],&tab_3[22],&tab_3[23],&tab_3[24],&tab_3[25],&tab_3[26],&tab_3[27],&tab_3[28],&tab_3[29],
                     &tab_3[30],&tab_3[31],&tab_3[32],&tab_3[33],&tab_3[34],&tab_3[35],&tab_3[36],&tab_3[37],&tab_3[38],&tab_3[39],
                     &tab_3[40],&tab_3[41],&tab_3[42],&tab_3[43],&tab_3[44],&tab_3[45],&tab_3[46],&tab_3[47],&tab_3[48],&tab_3[49],
-                    &tab_3[50]);} 
+                    &tab_3[50]);}
 
             //// CUARTO NODO ////
-           
+
             if(iline == i1+i2+i3+N+1){
             sscanf(line,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf ",
                     &n14,&n24,&pc4,&tab_4[0],&tab_4[1],&tab_4[2],&tab_4[3],&tab_4[4],&tab_4[5],&tab_4[6],&tab_4[7],&tab_4[8],&tab_4[9],
@@ -200,7 +200,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
                     &tab_4[20],&tab_4[21],&tab_4[22],&tab_4[23],&tab_4[24],&tab_4[25],&tab_4[26],&tab_4[27],&tab_4[28],&tab_4[29],
                     &tab_4[30],&tab_4[31],&tab_4[32],&tab_4[33],&tab_4[34],&tab_4[35],&tab_4[36],&tab_4[37],&tab_4[38],&tab_4[39],
                     &tab_4[40],&tab_4[41],&tab_4[42],&tab_4[43],&tab_4[44],&tab_4[45],&tab_4[46],&tab_4[47],&tab_4[48],&tab_4[49],
-                    &tab_4[50]);} 
+                    &tab_4[50]);}
 
 
             if(iline == i1+i2+i3+N+1)break;
@@ -216,11 +216,11 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
         if((l1+1)%3==2) i1 = 2*N*N;
 
         sprintf(filename, "_sampler%03d.txt", number_file);
-        parameters = concat("Files_model_2/", snapshot);
+        parameters = concat("Samplers/", snapshot);
         parameters = concat(parameters,filename);
         arx = fopen(parameters,"r");
         iline = 0;
-    
+
         while (fgets(line, sizeof(line), arx)) {
             iline++;
             //printf("ints %d\t %d\n",iline,i1+i2+i3);
@@ -293,7 +293,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
         v6/=vtot;
         v7/=vtot;
         v8/=vtot;
-        
+
         for(i=0;i<Nbins;i++)temp[i]=v1*tab_1[i]+v2*tab_2[i]+v3*tab_3[i]+v4*tab_4[i]+v5*tab_5[i]+v6*tab_6[i]+v7*tab_7[i]+v8*tab_8[i];
 
         numerator=0.0;
@@ -312,7 +312,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
 
         if(counter==0)prob_b=prob-1.0e5;
         alpha=prob-prob_b;
-        
+
         if (alpha>0.0){
             prob_b=prob;
             n1_b=n1;
@@ -333,7 +333,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
             counter_b++;
             counter++;
             nacc++;
-           
+
             if(counter>1000)fprintf(output, "%f\t %f\t %10.8f\t %f\t %f\n", n1, n2, pc, pcyrtokms*fc, accept_rate);}
         else{
             rnd=log(uniform(0.0,1.0));
@@ -343,7 +343,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
                 n2_b=n2;
                 pc_b=pc;
                 fc_b=fc;
-                dv_b=dv; 
+                dv_b=dv;
 
                 if(counter_b>=0){
                 sd1 = (1.0*counter_b/(1.0*counter_b+1))*(sd1 +(n1_b-mu1)*(n1_b-mu1)/(1.0*counter_b+1));
@@ -360,7 +360,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
                 counter_b++;
                 nacc++;
             if(counter>1000)fprintf(output, "%f\t %f\t %10.8f\t %f\t %f\n", n1, n2, pc, pcyrtokms*fc, accept_rate);
-            
+
             }}
 
         accept_rate=1.0*nacc/(1.0*ntrial);
@@ -374,7 +374,7 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
 
 
 	//return 0.0;
-    
+
 }
 
 
@@ -431,7 +431,7 @@ if(my_id==root_process){
 
 	// Send respective id
 	for(an_id=1 ; an_id<num_procs ; an_id++){
-    		ierr = MPI_Send(&an_id, 1, MPI_INT, an_id, send_data_tag, MPI_COMM_WORLD);	
+    		ierr = MPI_Send(&an_id, 1, MPI_INT, an_id, send_data_tag, MPI_COMM_WORLD);
 	}
 
 	out=walker(name,snapshot,n1_min , n1_max, n2_min, n2_max, pc_min, pc_max, dv_min, dv_max,
@@ -444,7 +444,7 @@ else{
     	ierr = MPI_Recv(&rec_id, 1, MPI_INT, 0, send_data_tag, MPI_COMM_WORLD, &status);
 	out=walker(name,snapshot,n1_min , n1_max, n2_min, n2_max, pc_min, pc_max, dv_min, dv_max,
                 pmin, pmax, Nbins, dx, sigma, delta, error, steps, rec_id);
-	
+
 	ierr = MPI_Send(&fin, 1, MPI_INT, 0, finish_data_tag, MPI_COMM_WORLD);
 	}
 ierr=MPI_Finalize();

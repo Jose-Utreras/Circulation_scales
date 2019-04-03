@@ -79,10 +79,13 @@ for i, R in enumerate(scales):
 
     if (av_file=='model'):
         omeg            = Tabla2[:,2+2*i]
+        print('MODEL')
     elif(av_file=='exp')|(av_file=='expansion'):
         omeg            = Tabla2[:,3+2*i]
+        print('EXPANSION')
     else:
         omeg            = Tabla[:,3+2*i]
+        print('ROT-CURVE')
 
     mapa    = vort-omeg
     mapa   -= np.mean(mapa)
