@@ -217,84 +217,6 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
   return result;
   }
 
-double one_sigma(double n1, double n2, double pc, double pmin, double pmax, double dx){
-    n1=n1-1;
-    n2=n2-1;
-    //srand(time(0));
-    double f1,f2,g1,g2,A,B,p,q,sum;
-    double result;
-
-    if (n1!=1.0 && n2!=1.0){
-      f1=pow(pc,2.0-2.0*n1)/(2.0-2.0*n1) - pow(pmin,2.0-2.0*n1)/(2.0-2.0*n1);
-      f2=pow(pmax,2.0-2.0*n2)-pow(pc,2.0-2.0*n2);
-      f2=f2*pow(pc,2.0*(n2-n1))/(2.0-2.0*n2);
-
-      //These are the condition of the index for the velocity field
-      if (n1!=0.0 && n2!=0.0){
-        g1=pow(pc,-2.0*n1)/(-2.0*n1) - pow(pmin,-2.0*n1)/(-2.0*n1);
-        g2=pow(pmax,-2.0*n2)-pow(pc,-2.0*n2);
-        g2=g2*pow(pc,2.0*(n2-n1))/(-2.0*n2);}
-      else if(n1!=0.0){
-        g1=pow(pc,-2.0*n1)/(-2.0*n1) - pow(pmin,-2.0*n1)/(-2.0*n1);
-        g2=log(pmax/pc)*pow(pc,2.0*(n2-n1));}
-      else if(n2!=0){
-        g1=log(pc/pmin);
-        g2=pow(pmax,-2.0*n2)-pow(pc,-2.0*n2);
-        g2=g2*pow(pc,2.0*(n2-n1))/(-2.0*n2);}
-      else {
-        g1=log(pc/pmin);
-        g2=log(pmax/pc)*pow(pc,2.0*(n2-n1));}
-
-      A=f1+f2;
-      B=g1+g2;
-
-      result=2*PI*sqrt(A/(1.0*B));
-    }
-    else if (n1==1.0 && n2!=1.0){
-      f1=log(pc/pmin);
-      f2=pow(pmax,2.0-2.0*n2)-pow(pc,2.0-2.0*n2);
-      f2=f2*pow(pc,2.0*(n2-n1))/(2.0-2.0*n2);
-      g1=pow(pc,-2.0*n1)/(-2.0*n1) - pow(pmin,-2.0*n1)/(-2.0*n1);
-
-      if (n2!=0.0){
-        g2=pow(pmax,-2.0*n2)-pow(pc,-2.0*n2);
-        g2=g2*pow(pc,2.0*(n2-n1))/(-2.0*n2);}
-      else {g2=log(pmax/pc)*pow(pc,2.0*(n2-n1));}
-
-      A=f1+f2;
-      B=g1+g2;
-
-      result=2*PI*sqrt(A/(1.0*B));
-
-    }
-    else if (n1!=1.0 && n2==1.0){
-      f1=pow(pc,2.0-2.0*n1)/(2.0-2.0*n1) - pow(pmin,2.0-2.0*n1)/(2.0-2.0*n1);
-      f2=log(pmax/pc)*pow(pc,2.0*(n2-n1));
-      g2=pow(pmax,-2.0*n2)-pow(pc,-2.0*n2);
-      g2=g2*pow(pc,2.0*(n2-n1))/(-2.0*n2);
-
-      if (n1!=0.0){g1=pow(pc,-2.0*n1)/(-2.0*n1) - pow(pmin,-2.0*n1)/(-2.0*n1);}
-      else {g1=log(pc/pmin);}
-
-      A=f1+f2;
-      B=g1+g2;
-
-      result=2*PI*sqrt(A/(1.0*B));
-    }
-    else if (n1==1.0 && n2==1.0){
-      f1=log(pc/pmin);
-      f2=log(pmax/pc)*pow(pc,2.0*(n2-n1));
-      g1=pow(pc,-2.0*n1)/(-2.0*n1) - pow(pmin,-2.0*n1)/(-2.0*n1);
-      g2=pow(pmax,-2.0*n2)-pow(pc,-2.0*n2);
-      g2=g2*pow(pc,2.0*(n2-n1))/(-2.0*n2);
-
-      A=f1+f2;
-      B=g1+g2;
-
-      result=2*PI*sqrt(A/(1.0*B));}
-    return result*dx*dx;
-    }
-
 double uniform(double minimo, double maximo){
   return minimo+(maximo-minimo)*rand()/(1.0*RAND_MAX);
 }
@@ -309,16 +231,16 @@ double walker(char *name,double n1_min , double n1_max, double n2_min , double n
     char* parameters = concat("Files_model_2/", name);
     parameters       = concat(parameters,filename);
     arx = fopen(parameters,"w");
-	
+
   	double n1  , n2,  pc  , fc  , r_factor;
   	float *temp;
   	int i,counter;
     int i1,i2,i3;
-    int low, upp; 
+    int low, upp;
 
     int cond;
     int div;
-    div  = (int)steps/ncores; 
+    div  = (int)steps/ncores;
     cond = steps - id - ncores*div;
 
     if (cond > 0){
@@ -328,29 +250,29 @@ double walker(char *name,double n1_min , double n1_max, double n2_min , double n
         low = steps - (ncores-id)*div;
         upp = steps -1 - (ncores -id -1)*div;}
 
-	
+
     r_factor=pow(pc_max/pc_min,1.0/(1.0*steps-1));
 
 	/***********************
-	 * First random numbers 	
+	 * First random numbers
 	************************/
-    printf("steps %d\n",steps);	
+    printf("steps %d\n",steps);
     for(i1=low;i1<=upp;i1++){
         printf("indice , id %d\t %d\n",i1,id);
     for(i2=0;i2<steps;i2++){
-    for(i3=0;i3<steps;i3++){    
+    for(i3=0;i3<steps;i3++){
         n1   = n1_min + (n1_max-n1_min)*i1/(1.0*steps-1);
         n2   = n2_min + (n2_max-n2_min)*i2/(1.0*steps-1);
   		pc   = pc_min*pow(r_factor,i3);
         temp = sigmas(n1, n2, pc, pmin, pmax, Nbins, delta,dx);
     	fprintf(arx, "%f\t %f\t %f", n1, n2, pc);
-        for(i=0;i<Nbins;i++){ 
+        for(i=0;i<Nbins;i++){
             fprintf(arx, "\t %f", temp[i]);
             }
         fprintf(arx,"\n");
-    }}}	
+    }}}
 	printf("end sampler %03d\n",id);
-	
+
 	fclose(arx);
 	return 0.0;
 
@@ -403,7 +325,7 @@ if(my_id==root_process){
 
 	// Send respective id
 	for(an_id=1 ; an_id<num_procs ; an_id++){
-    		ierr = MPI_Send(&an_id, 1, MPI_INT, an_id, send_data_tag, MPI_COMM_WORLD);	
+    		ierr = MPI_Send(&an_id, 1, MPI_INT, an_id, send_data_tag, MPI_COMM_WORLD);
 	}
 
 	out=walker(name,n1_min , n1_max, n2_min, n2_max, pc_min, pc_max,
@@ -416,8 +338,8 @@ else{
     	ierr = MPI_Recv(&rec_id, 1, MPI_INT, 0, send_data_tag, MPI_COMM_WORLD, &status);
 	out=walker(name,n1_min , n1_max, n2_min, n2_max, pc_min, pc_max,
                 pmin, pmax, Nbins, dx, delta, steps, rec_id, num_procs);
-   
-	
+
+
 	ierr = MPI_Send(&fin, 1, MPI_INT, 0, finish_data_tag, MPI_COMM_WORLD);
 	}
 ierr=MPI_Finalize();

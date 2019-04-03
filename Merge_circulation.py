@@ -1,8 +1,7 @@
 import numpy as np
-import sys, glob, os
+import glob, os
 
-cmdargs = sys.argv
-name_file   =   cmdargs[-1]
+name_file=str(np.loadtxt('Input.txt',usecols=(1),dtype=bytes).astype(str))
 
 vort_list=sorted(glob.glob('Files/'+name_file+'_vort_[0-9][0-9][0-9].txt'))
 other_list=sorted(glob.glob('Files/'+name_file+'_other_[0-9][0-9][0-9].txt'))
