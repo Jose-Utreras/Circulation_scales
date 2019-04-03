@@ -53,7 +53,6 @@ main(int argc, char* argv[]) {
 			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf",&name,&L,&Ngrids,&Rmax,&N_tent);
 			break;}
 		fclose(arx);
-		printf("%s\t %f\t %d\t %f\t %d\n",name,L,Ngrids,Rmax,N_tent);
 
 		N_scales=N_tent;
 		int scales[N_scales];
@@ -95,7 +94,6 @@ main(int argc, char* argv[]) {
 		scale_max=(int) Ngrids*(0.5*L - Rmax)/L;
 
 		//////////// define ideal spacing ////
-		printf("%d\t %d\t %d\t %d\n",scale_min,scale_max,N_tent,Ngrids);
 		do{
 		counter=1;
 		jump=pow(10,log10(1.0*scale_max)/N_tent);

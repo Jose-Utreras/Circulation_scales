@@ -42,29 +42,29 @@ main(int argc, char* argv[]) {
 		int scale_min, scale_max, scale_i, scale_aux, step, is, js;
 		int N_tent, N_scales;
 		double jump;
-
+		FILE *arx;
     root_process=0;
 
-    char *name;
+    char name[64];
     double L, Rmax;
 
+		arx = fopen("Input.txt","r");
+		while (fgets(line, sizeof(line), arx)){
+			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf",&name,&L,&Ngrids,&Rmax,&N_tent);
+			break;}
+		fclose(arx);
 
-    name=argv[1];
-    sscanf(argv[2],"%lf",&L);
-		sscanf(argv[3],"%d",&Ngrids);
-		sscanf(argv[4],"%lf",&Rmax);
-		sscanf(argv[5],"%d",&N_tent);
 		N_scales=N_tent;
 		int scales[N_scales];
 
 		float **model_map = (float **)malloc(Ngrids * sizeof(float*));
-		for(int i = 0; i < Ngrids; i++) model_map[i] = (float *)malloc(Ngrids * sizeof(float));
+		for(i = 0; i < Ngrids; i++) model_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
 		float **exp_map = (float **)malloc(Ngrids * sizeof(float*));
-		for(int i = 0; i < Ngrids; i++) exp_map[i] = (float *)malloc(Ngrids * sizeof(float));
+		for(i = 0; i < Ngrids; i++) exp_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
 		///// Saving modelicity map in matrix ////
-		FILE *arx;
+
     char* map_file	= concat("Maps/", name);
     map_file        = concat(map_file,"_model.txt");
     arx 						= fopen(map_file,"r");
