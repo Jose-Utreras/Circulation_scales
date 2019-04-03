@@ -21,13 +21,7 @@ Rmin        =   float(cmdargs[-3])
 
 name_file=str(np.loadtxt('Input.txt',usecols=(1),dtype=bytes).astype(str))
 
-#L , N, n1_min, n1_max, n2_min, n2_max, dv_min, dv_max  = np.loadtxt('Files/'+name_file+'_data.txt',unpack=True)
-
-L , n1_min, n1_max, n2_min, n2_max, dv_min, dv_max  = np.loadtxt('input.txt',usecols=(1,2,3,4,5,6,7),unpack=True)
-Map=np.loadtxt('Maps/'+name_file+'_vort.txt')
-N=len(Map)
-del Map
-
+L , N, n1_min, n1_max, n2_min, n2_max, dv_min, dv_max  = np.loadtxt('Input.txt',usecols=(2,3,6,7,8,9,10,11),unpack=True)
 
 scales      = np.loadtxt('Files/'+name_file+'_scales.txt', dtype=int)
 N_scales    = len(scales)
