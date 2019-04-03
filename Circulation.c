@@ -42,18 +42,19 @@ main(int argc, char* argv[]) {
 		int scale_min, scale_max, scale_i, scale_aux, step, is, js;
 		int N_tent, N_scales;
 		double jump;
-
+		FILE *arx;
+		char line[700];
     root_process=0;
-
-    char *name;
+    char name[64];
     double L, Rmax;
 
+		arx = fopen("Input.txt","r");
+		while (fgets(line, sizeof(line), arx)){
+			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf",&name,&L,&Ngrids,&Rmax,&N_tent);
+			break;}
+		fclose(arx);
+		printf("%s\t %f\t %d\t %f\t %d\n",name,L,Ngrids,Rmax,N_tent);
 
-    name=argv[1];
-    sscanf(argv[2],"%lf",&L);
-		sscanf(argv[3],"%d",&Ngrids);
-		sscanf(argv[4],"%lf",&Rmax);
-		sscanf(argv[5],"%d",&N_tent);
 		N_scales=N_tent;
 		int scales[N_scales];
 
@@ -63,8 +64,10 @@ main(int argc, char* argv[]) {
 		float **omeg_map = (float **)malloc(Ngrids * sizeof(float*));
 		for(i = 0; i < Ngrids; i++) omeg_map[i] = (float *)malloc(Ngrids * sizeof(float));
 
+
+		printf("Saving maps\n");
 		///// Saving vorticity map in matrix ////
-		FILE *arx;
+
     char* map_file	= concat("Maps/", name);
     map_file        = concat(map_file,"_vort.txt");
     arx 						= fopen(map_file,"r");
@@ -92,6 +95,7 @@ main(int argc, char* argv[]) {
 		scale_max=(int) Ngrids*(0.5*L - Rmax)/L;
 
 		//////////// define ideal spacing ////
+		printf("%d\t %d\t %d\t %d\n",scale_min,scale_max,N_tent,Ngrids);
 		do{
 		counter=1;
 		jump=pow(10,log10(1.0*scale_max)/N_tent);

@@ -251,11 +251,9 @@ def Vorticity_curve(R,Vo,R1,R2):
 
     return result
 
-cmdargs = sys.argv
-name_file=cmdargs[-1]
-
 dir=str(np.loadtxt('Input.txt',usecols=(0),dtype=bytes).astype(str))
-L=np.loadtxt('Input.txt',usecols=(1),dtype=float)
+name_file=str(np.loadtxt('Input.txt',usecols=(1),dtype=bytes).astype(str))
+L=np.loadtxt('Input.txt',usecols=(2),dtype=float)
 
 directory=dir+'/'+name_file+'/G-'+name_file[-4:]
 
