@@ -228,7 +228,7 @@ double walker(char *name,double n1_min , double n1_max, double n2_min , double n
     FILE *arx;
     char filename[sizeof "_sampler100.txt"];
     sprintf(filename, "_sampler%03d.txt", id);
-    char* parameters = concat("Files_model_2/", name);
+    char* parameters = concat("Samplers/", name);
     parameters       = concat(parameters,filename);
     arx = fopen(parameters,"w");
 
@@ -287,31 +287,33 @@ fin=0;
 int N, Nres, Nbins, steps;
 double L, out;
 double pmin,pmax,dx,n1_min,n1_max,n2_min,n2_max,pc_min,pc_max;
-char *name;
+char name[64];
 //clock_t start, end;
 //double cpu_time_used;
-
-
-name=argv[1];
-sscanf(argv[2],"%lf",&L);
-sscanf(argv[3],"%d",&N);
-sscanf(argv[4],"%lf",&n1_min);
-sscanf(argv[5],"%lf",&n1_max);
-sscanf(argv[6],"%lf",&n2_min);
-sscanf(argv[7],"%lf",&n2_max);
-sscanf(argv[8],"%lf",&pc_min);
-sscanf(argv[9],"%lf",&pc_max);
-
-Nbins=argc-10;
+FILE *arx;
+arx = fopen("Input.txt","r");
+while (fgets(line, sizeof(line), arx)){
+	sscanf(line,"%*s %63s %lf %d %lf %d %lf %lf %lf %lf %*lf %*lf",
+	&name,&L,&N,&Rmax,&Nbins,&n1_min,&n1_max,&n2_min,&n2_max);
+	break;}
+fclose(arx);
 
 
 steps=60;
 float delta[Nbins];
-for(i = 0; i < Nbins; i++){
- sscanf(argv[10+i],"%f",&delta[i]);}
+
+arx = fopen("Files/"+name+"_scales.txt","r");
+while (fgets(line, sizeof(line), arx)){
+//READSCALES
+sscanf(line," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &delta[0], &delta[1], &delta[2], &delta[3], &delta[4], &delta[5], &delta[6], &delta[7], &delta[8], &delta[9], &delta[10], &delta[11], &delta[12], &delta[13], &delta[14], &delta[15], &delta[16], &delta[17], &delta[18], &delta[19], &delta[20], &delta[21], &delta[22], &delta[23], &delta[24], &delta[25], &delta[26], &delta[27], &delta[28], &delta[29], &delta[30], &delta[31], &delta[32], &delta[33], &delta[34], &delta[35], &delta[36], &delta[37], &delta[38], &delta[39], &delta[40], &delta[41], &delta[42], &delta[43], &delta[44], &delta[45], &delta[46], &delta[47], &delta[48], &delta[49]);
+break;}
+
+fclose(arx);
 
 pmin=4.0/L;
 pmax=(1.0*N)/(4.0*L);
+pc_min=2*pmin;
+pc_max=0.5*pmax;
 dx=L/(1.0*N);
 
 ierr = MPI_Init(&argc, &argv);
