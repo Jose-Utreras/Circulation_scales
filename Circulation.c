@@ -29,6 +29,7 @@ char* concat(const char *s1, const char *s2)
 
 
 main(int argc, char* argv[]) {
+	printf("hola\n");
     MPI_Status status;
     int my_id, an_id, root_process, ierr, num_procs,rec_id, fin, Ngrids;
 
@@ -50,7 +51,7 @@ main(int argc, char* argv[]) {
 
 		arx = fopen("Input.txt","r");
 		while (fgets(line, sizeof(line), arx)){
-			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf",&name,&L,&Ngrids,&Rmax,&N_tent);
+			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf %*d",&name,&L,&Ngrids,&Rmax,&N_tent);
 			break;}
 		fclose(arx);
 

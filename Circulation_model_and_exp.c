@@ -44,13 +44,13 @@ main(int argc, char* argv[]) {
 		double jump;
 		FILE *arx;
     root_process=0;
-
+		char line[700];
     char name[64];
     double L, Rmax;
 
 		arx = fopen("Input.txt","r");
 		while (fgets(line, sizeof(line), arx)){
-			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf",&name,&L,&Ngrids,&Rmax,&N_tent);
+			sscanf(line,"%*s %63s %lf %d %lf %d %*lf %*lf %*lf %*lf %*lf %*lf %*d",&name,&L,&Ngrids,&Rmax,&N_tent);
 			break;}
 		fclose(arx);
 

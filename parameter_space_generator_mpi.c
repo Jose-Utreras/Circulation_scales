@@ -5,6 +5,8 @@
 #include <string.h>
 #include <mpi.h>
 
+#define steps 10
+#define Nint 2000
 #define PI 3.14159265
 #define tiny 1e-16
 #define fmin 0.1
@@ -132,7 +134,7 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
 
     for(j = 0; j < Nbins; j++){
       sum=0.0;
-      Npoints= 10+(int) 15000*(pmax-pmin)*delta[j];
+      Npoints= 10+(int) Nint*(pmax-pmin)*delta[j];
       for(i = 0; i < Npoints; i++){
         random = rand()/maximo;
         angle  = 0.5*PI*rand()/maximo;
@@ -158,7 +160,7 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
 
     for(j = 0; j < Nbins; j++){
       sum=0.0;
-      Npoints= 10+(int) 15000*(pmax-pmin)*delta[j];
+      Npoints= 10+(int) Nint*(pmax-pmin)*delta[j];
       for(i = 0; i < Npoints; i++){
         random = rand()/maximo;
         angle  = 0.5*PI*rand()/maximo;
@@ -183,7 +185,7 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
 
     for(j = 0; j < Nbins; j++){
       sum=0.0;
-      Npoints= 10+(int) 15000*(pmax-pmin)*delta[j];
+      Npoints= 10+(int) Nint*(pmax-pmin)*delta[j];
       for(i = 0; i < Npoints; i++){
         random = rand()/maximo;
         angle  = 0.5*PI*rand()/maximo;
@@ -205,7 +207,7 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
 
     for( j = 0; j < Nbins; j++){
       sum=0.0;
-      Npoints= 10+(int) 15000*(pmax-pmin)*delta[j];
+      Npoints= 10+(int) Nint*(pmax-pmin)*delta[j];
       for( i = 0; i < Npoints; i++){
         random = rand()/maximo;
         angle  = 0.5*PI*rand()/maximo;
@@ -222,7 +224,7 @@ double uniform(double minimo, double maximo){
 }
 
 double walker(char *name,double n1_min , double n1_max, double n2_min , double n2_max, double pc_min, double pc_max,
-  double pmin, double pmax, int Nbins, double dx, float *delta, int steps, int id, int ncores){
+  double pmin, double pmax, int Nbins, double dx, float *delta, int id, int ncores){
         printf("This is the %03d\t sampler \n ", id);
 
     FILE *arx;
@@ -284,37 +286,46 @@ MPI_Status status;
 int my_id, an_id, root_process, ierr, i, num_procs,rec_id, fin;
 root_process=0;
 fin=0;
-int N, Nres, Nbins, steps;
+int N, Nres, Nbins;
 double L, out;
 double pmin,pmax,dx,n1_min,n1_max,n2_min,n2_max,pc_min,pc_max;
 char name[64];
+char line[700];
 //clock_t start, end;
 //double cpu_time_used;
 FILE *arx;
 arx = fopen("Input.txt","r");
 while (fgets(line, sizeof(line), arx)){
-	sscanf(line,"%*s %63s %lf %d %lf %d %lf %lf %lf %lf %*lf %*lf",
-	&name,&L,&N,&Rmax,&Nbins,&n1_min,&n1_max,&n2_min,&n2_max);
+	sscanf(line,"%*s %63s %lf %d %*lf %d %lf %lf %lf %lf %*lf %*lf %*d",
+	&name,&L,&N,&Nbins,&n1_min,&n1_max,&n2_min,&n2_max);
 	break;}
 fclose(arx);
 
 
-steps=60;
-float delta[Nbins];
+float* delta = malloc(Nbins*sizeof(float*));
 
-arx = fopen("Files/"+name+"_scales.txt","r");
+
+char* s_file	= concat("Files/", name);
+s_file        = concat(s_file,"_scales.txt");
+arx 					= fopen(s_file,"r");
+
 while (fgets(line, sizeof(line), arx)){
 //READSCALES
-sscanf(line," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &delta[0], &delta[1], &delta[2], &delta[3], &delta[4], &delta[5], &delta[6], &delta[7], &delta[8], &delta[9], &delta[10], &delta[11], &delta[12], &delta[13], &delta[14], &delta[15], &delta[16], &delta[17], &delta[18], &delta[19], &delta[20], &delta[21], &delta[22], &delta[23], &delta[24], &delta[25], &delta[26], &delta[27], &delta[28], &delta[29], &delta[30], &delta[31], &delta[32], &delta[33], &delta[34], &delta[35], &delta[36], &delta[37], &delta[38], &delta[39], &delta[40], &delta[41], &delta[42], &delta[43], &delta[44], &delta[45], &delta[46], &delta[47], &delta[48], &delta[49]);
+sscanf(line," %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f", &delta[0], &delta[1], &delta[2], &delta[3], &delta[4], &delta[5], &delta[6], &delta[7], &delta[8], &delta[9], &delta[10], &delta[11], &delta[12], &delta[13], &delta[14], &delta[15], &delta[16], &delta[17], &delta[18], &delta[19], &delta[20], &delta[21], &delta[22], &delta[23], &delta[24], &delta[25], &delta[26], &delta[27], &delta[28], &delta[29], &delta[30], &delta[31], &delta[32], &delta[33], &delta[34], &delta[35], &delta[36], &delta[37], &delta[38], &delta[39], &delta[40], &delta[41], &delta[42], &delta[43], &delta[44], &delta[45], &delta[46], &delta[47], &delta[48], &delta[49]);
 break;}
-
 fclose(arx);
+
+
 
 pmin=4.0/L;
 pmax=(1.0*N)/(4.0*L);
 pc_min=2*pmin;
 pc_max=0.5*pmax;
 dx=L/(1.0*N);
+
+for(i=0;i<Nbins;i++)delta[i]=delta[i]*dx;
+for(i=0;i<Nbins;i++)printf("%f\t",delta[i]);
+printf("\n");
 
 ierr = MPI_Init(&argc, &argv);
 
@@ -331,7 +342,7 @@ if(my_id==root_process){
 	}
 
 	out=walker(name,n1_min , n1_max, n2_min, n2_max, pc_min, pc_max,
-	  	pmin, pmax, Nbins, dx, delta, steps, 0, num_procs);
+	  	pmin, pmax, Nbins, dx, delta, 0, num_procs);
 	for(an_id=1 ; an_id<num_procs ; an_id++)
 	ierr = MPI_Recv(&fin, 1, MPI_INT, MPI_ANY_SOURCE, finish_data_tag, MPI_COMM_WORLD, &status);
 }
@@ -339,7 +350,7 @@ if(my_id==root_process){
 else{
     	ierr = MPI_Recv(&rec_id, 1, MPI_INT, 0, send_data_tag, MPI_COMM_WORLD, &status);
 	out=walker(name,n1_min , n1_max, n2_min, n2_max, pc_min, pc_max,
-                pmin, pmax, Nbins, dx, delta, steps, rec_id, num_procs);
+                pmin, pmax, Nbins, dx, delta, rec_id, num_procs);
 
 
 	ierr = MPI_Send(&fin, 1, MPI_INT, 0, finish_data_tag, MPI_COMM_WORLD);

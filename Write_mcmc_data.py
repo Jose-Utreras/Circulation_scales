@@ -12,9 +12,6 @@ kms_to_pcmyr=1.022
 
 cmdargs = sys.argv
 
-R1=cmdargs[-2]
-R2=cmdargs[-1]
-
 av_file     =   cmdargs[-1]
 Rmax        =   float(cmdargs[-2])
 Rmin        =   float(cmdargs[-3])
@@ -217,8 +214,8 @@ print('Writing parameters')
 
 array_file=name_file+'_%05d' %int(Rmin)+'_%05d' %int(Rmax)
 
-parameters=' '+str(n1_min)+' '+str(n1_max)+' '+str(n2_min)+' '+str(n2_max)+' '+str(p_min*2)+' '+str(p_max*0.5)+' '+str(dv_min)+' '+str(dv_max)
-linea=array_file+' '+name_file+' '+str(L)+' '+str(N) +' '+ parameters + Resolution + sigma_array + error_array
+
+linea= Resolution + sigma_array + error_array
 variables=open('Files/'+name_file+'_%05d' %int(Rmin) +'_%05d' %int(Rmax)+'.txt','w')
 variables.write(linea)
 variables.close()
