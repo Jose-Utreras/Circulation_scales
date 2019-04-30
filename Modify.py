@@ -88,7 +88,7 @@ for i in range(Nbins):
 line+="\""+line2+line3+line4+");\n"
 #print(line)
 
-f_in=open('mcmc_chains_copy.c','r')
+f_in=open('mcmc_chains.c','r')
 f_out=open('out.c','w')
 switch=False
 for x in f_in:

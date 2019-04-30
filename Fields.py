@@ -1,7 +1,7 @@
 import numpy as np
 import math
 from common_functions import *
-import sys
+import sys, os
 import yt
 from yt.units import kpc,pc,km,second,yr,Myr,Msun
 from yt.fields.api import ValidateParameter
@@ -185,68 +185,80 @@ def Vorticity_profile(V,R,DR,Rmin,Rmax,function):
 
     return x,y
 
-dir=str(np.loadtxt('Input.txt',usecols=(0),dtype=bytes).astype(str))
-name_file=str(np.loadtxt('Input.txt',usecols=(1),dtype=bytes).astype(str))
-L=np.loadtxt('Input.txt',usecols=(2),dtype=float)
+cmdargs = sys.argv
+name_file     =   cmdargs[-1]
+if(name_file=="Fields.py"):
+    name_file=str(np.loadtxt('Input.txt',usecols=(1,),dtype=bytes).astype(str))
 
-directory=dir+'/'+name_file+'/G-'+name_file[-4:]
+dir=str(np.loadtxt('Input.txt',usecols=(0,),dtype=bytes).astype(str))
+L=np.loadtxt('Input.txt',usecols=(2,),dtype=float)
 
-ds = yt.load(directory)
+t1=os.path.isfile('Maps/'+name_file+'_av_vort.txt')
+t2=os.path.isfile('Maps/'+name_file+'_av_sigma.txt')
+t3=os.path.isfile('Maps/'+name_file+'_vort.txt')
+t4=os.path.isfile('Maps/'+name_file+'_sigma.txt')
 
-grids=ds.refine_by**ds.index.max_level*ds.domain_dimensions[0]
+if t1*t2*t3*t4:
+    pass
+else:
 
-DX=ds.arr(1, 'code_length')
-DX.convert_to_units('pc')
-dr=DX/grids
+    directory=dir+'/'+name_file+'/G-'+name_file[-4:]
 
-NN=int(L/dr)
-dA=((L/NN)**2)
+    ds = yt.load(directory)
+
+    grids=ds.refine_by**ds.index.max_level*ds.domain_dimensions[0]
+
+    DX=ds.arr(1, 'code_length')
+    DX.convert_to_units('pc')
+    dr=DX/grids
+
+    NN=int(L/dr)
+    dA=((L/NN)**2)
+
+    input = np.loadtxt('Input.txt',dtype=bytes).astype(str)
+    if int(input[3])!=NN:
+        input[3]="%d" %NN
+        np.savetxt('Input.txt',np.atleast_2d(input),fmt='%s',delimiter='\t')
+
+    Disk = ds.disk('c', [0., 0., 1.],(L/1.0e3, 'kpc'), (1, 'kpc'))
+
+    VC=Disk['vc'].in_units("pc/Myr")
+    R=Disk['Disk_Radius'].in_units("pc")
+    Masa=Disk['cell_mass'].in_units("Msun")
+
+    R_map=radial_map_N(NN,NN)*L/NN
 
 
-input=np.loadtxt('Input.txt',dtype=str)
-if int(input[3])!=NN:
-    input[3]="%d" %NN
-    np.savetxt('Input.txt',np.atleast_2d(input),fmt='%s',delimiter='\t')
-
-Disk = ds.disk('c', [0., 0., 1.],(L/1.0e3, 'kpc'), (1, 'kpc'))
-
-VC=Disk['vc'].in_units("pc/Myr")
-R=Disk['Disk_Radius'].in_units("pc")
-Masa=Disk['cell_mass'].in_units("Msun")
-
-R_map=radial_map_N(NN,NN)*L/NN
+    x,y=Vorticity_profile(VC,R,500,0,0.75*L,np.mean)
+    fun=interp1d(x,y)
+    vorticity_map=fun(R_map)
+    np.savetxt('Maps/'+name_file+'_av_vort.txt',vorticity_map*dA,fmt="%.4e",delimiter='\t')
 
 
-x,y=Vorticity_profile(VC,R,500,0,0.75*L,np.mean)
-fun=interp1d(x,y)
-vorticity_map=fun(R_map)
-np.savetxt('Maps/'+name_file+'_av_vort.txt',vorticity_map*dA,fmt="%.4e",delimiter='\t')
+    x,y=Sigma_profile(Masa,R,500,0,0.75*L)
+    fun=interp1d(x,y)
+    sigma_map=fun(R_map)
+    np.savetxt('Maps/'+name_file+'_av_sigma.txt',sigma_map,fmt="%.4e",delimiter='\t')
 
+    del Disk,sigma_map,vorticity_map
 
-x,y=Sigma_profile(Masa,R,500,0,0.75*L)
-fun=interp1d(x,y)
-sigma_map=fun(R_map)
-np.savetxt('Maps/'+name_file+'_av_sigma.txt',sigma_map,fmt="%.4e",delimiter='\t')
+    dd=ds.all_data()
+    width = (float(L), 'pc')
+    print('### Projection ###')
+    disk_dd = dd.cut_region(["obj['Disk_H'].in_units('pc') < 1.0e3"])
+    proj = ds.proj('vorticity_z', 2,data_source=disk_dd,weight_field='density')
 
-del Disk,sigma_map,vorticity_map
+    res = [NN, NN]
+    frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
 
-dd=ds.all_data()
-width = (float(L), 'pc')
-print('### Projection ###')
-disk_dd = dd.cut_region(["obj['Disk_H'].in_units('pc') < 1.0e3"])
-proj = ds.proj('vorticity_z', 2,data_source=disk_dd,weight_field='density')
+    print('### Vorticity Map ###')
+    imvort=frb['vorticity_z'].in_units('1/Myr')*dA
 
-res = [NN, NN]
-frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
+    np.savetxt('Maps/'+name_file+'_vort.txt',imvort,fmt="%.4e",delimiter='\t')
 
-print('### Vorticity Map ###')
-imvort=frb['vorticity_z'].in_units('1/Myr')*dA
+    proj = ds.proj('density', 2,data_source=disk_dd,method='integrate')
+    frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
 
-np.savetxt('Maps/'+name_file+'_vort.txt',imvort,fmt="%.4e",delimiter='\t')
+    imsigma=frb['density'].in_units('Msun/pc**2')
 
-proj = ds.proj('density', 2,data_source=disk_dd,method='integrate')
-frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
-
-imsigma=frb['density'].in_units('Msun/pc**2')
-
-np.savetxt('Maps/'+name_file+'_sigma.txt',imsigma,fmt="%.4e",delimiter='\t')
+    np.savetxt('Maps/'+name_file+'_sigma.txt',imsigma,fmt="%.4e",delimiter='\t')
