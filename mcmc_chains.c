@@ -49,7 +49,6 @@ double walker(char *name, char *snapshot,double n1_min , double n1_max, double n
     char* outpar = concat("Chains/", name);
     outpar       = concat(outpar,outname);
     output       = fopen(outpar,"w");
-		printf("%s\n",outpar);
     FILE *arx;
     char* parameters;
     char filename[sizeof "_sampler100.txt"];

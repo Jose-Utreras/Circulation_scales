@@ -258,7 +258,6 @@ double walker(char *name,double n1_min , double n1_max, double n2_min , double n
 	/***********************
 	 * First random numbers
 	************************/
-    printf("steps %d\n",steps);
     for(i1=low;i1<=upp;i1++){
         printf("indice , id %d\t %d\n",i1,id);
     for(i2=0;i2<steps;i2++){
@@ -324,8 +323,6 @@ pc_max=0.5*pmax;
 dx=L/(1.0*N);
 
 for(i=0;i<Nbins;i++)delta[i]=delta[i]*dx;
-for(i=0;i<Nbins;i++)printf("%f\t",delta[i]);
-printf("\n");
 
 ierr = MPI_Init(&argc, &argv);
 
