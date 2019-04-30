@@ -16,7 +16,7 @@ av_file     =   cmdargs[-1]
 Rmax        =   float(cmdargs[-2])
 Rmin        =   float(cmdargs[-3])
 
-name_file=str(np.loadtxt('Input.txt',usecols=(1),dtype=bytes).astype(str))
+name_file=str(np.loadtxt('Input.txt',usecols=(1,),dtype=bytes).astype(str))
 
 L , N, n1_min, n1_max, n2_min, n2_max, dv_min, dv_max  = np.loadtxt('Input.txt',usecols=(2,3,6,7,8,9,10,11),unpack=True)
 
