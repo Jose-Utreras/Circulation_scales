@@ -29,7 +29,6 @@ char* concat(const char *s1, const char *s2)
 
 
 main(int argc, char* argv[]) {
-	printf("hola\n");
     MPI_Status status;
     int my_id, an_id, root_process, ierr, num_procs,rec_id, fin, Ngrids;
 
@@ -92,12 +91,14 @@ main(int argc, char* argv[]) {
 		//////////////////////////////////////////
 
 		scale_min=1;
-		scale_max=(int) Ngrids*(0.5*L - Rmax)/L;
+		scale_max=(int) (Ngrids*(0.5*L - Rmax)/L); 
+        printf("maximum scale %d\n", scale_max);
+        ///////////////////CAMBIO//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		//////////// define ideal spacing ////
 		do{
 		counter=1;
-		jump=pow(10,log10(1.0*scale_max)/N_tent);
+		jump=pow(10,log10(1.0*scale_max)/(N_tent-1));
 		scale_aux=scale_min;
 		for(i = 0; i < N_tent; i++){
 					scale_i=scale_min*pow(jump,i);
@@ -109,14 +110,13 @@ main(int argc, char* argv[]) {
 
 		N_tent--;
 		counter=0;
-		jump=pow(10,log10(1.0*scale_max)/N_tent);
+		jump=pow(10,log10(1.0*scale_max)/(N_tent-1));
 		for(i = 0; i < N_tent; i++){
 					scale_i=scale_min*pow(jump,i);
 					if (scale_aux!=scale_i){
 						scales[counter]=scale_i;
 						scale_aux=scale_i;
 						counter++;}}
-
 
 		//////////// Writing scales ///////////////
 

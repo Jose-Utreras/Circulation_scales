@@ -1,7 +1,7 @@
 import numpy as np
 import math
 from common_functions import *
-import sys, os
+import sys,os
 import yt
 from yt.units import kpc,pc,km,second,yr,Myr,Msun
 from yt.fields.api import ValidateParameter
@@ -154,8 +154,9 @@ def Sigma_profile(M,R,DR,Rmin,Rmax):
 
 def Velocity_profile(V,R,DR,Rmin,Rmax,function):
 
-    Redges=np.arange(Rmin*pc,Rmax*pc,DR*pc)
+    Redges=np.arange(Rmin,Rmax,DR)*pc
     Rcen=0.5*(Redges[1:]+Redges[0:-1])
+
     N=len(Rcen)
     Vcen=np.zeros(N)
     for k in range(N):
@@ -184,21 +185,18 @@ def Vorticity_profile(V,R,DR,Rmin,Rmax,function):
     y[1:]*=(1+du)
 
     return x,y
-
 cmdargs = sys.argv
 name_file     =   cmdargs[-1]
 if(name_file=="Fields.py"):
-    name_file=str(np.loadtxt('Input.txt',usecols=(1,),dtype=bytes).astype(str))
+    name_file=str(np.loadtxt('Input.txt',usecols=[1],dtype=bytes).astype(str))
 
-dir=str(np.loadtxt('Input.txt',usecols=(0,),dtype=bytes).astype(str))
-L=np.loadtxt('Input.txt',usecols=(2,),dtype=float)
+dir=str(np.loadtxt('Input.txt',usecols=[0],dtype=bytes).astype(str))
+L=np.loadtxt('Input.txt',usecols=[2],dtype=float)
 
 t1=os.path.isfile('Maps/'+name_file+'_av_vort.txt')
-t2=os.path.isfile('Maps/'+name_file+'_av_sigma.txt')
-t3=os.path.isfile('Maps/'+name_file+'_vort.txt')
-t4=os.path.isfile('Maps/'+name_file+'_sigma.txt')
+t2=os.path.isfile('Maps/'+name_file+'_vort.txt')
 
-if t1*t2*t3*t4:
+if t1*t2:
     pass
 else:
 
@@ -215,11 +213,12 @@ else:
     NN=int(L/dr)
     dA=((L/NN)**2)
 
+    print("L,NN,dA",L,NN,dA)
+    #input=np.loadtxt('Input.txt',dtype=str)
     input = np.loadtxt('Input.txt',dtype=bytes).astype(str)
     if int(input[3])!=NN:
         input[3]="%d" %NN
         np.savetxt('Input.txt',np.atleast_2d(input),fmt='%s',delimiter='\t')
-
     Disk = ds.disk('c', [0., 0., 1.],(L/1.0e3, 'kpc'), (1, 'kpc'))
 
     VC=Disk['vc'].in_units("pc/Myr")
@@ -235,18 +234,13 @@ else:
     np.savetxt('Maps/'+name_file+'_av_vort.txt',vorticity_map*dA,fmt="%.4e",delimiter='\t')
 
 
-    x,y=Sigma_profile(Masa,R,500,0,0.75*L)
-    fun=interp1d(x,y)
-    sigma_map=fun(R_map)
-    np.savetxt('Maps/'+name_file+'_av_sigma.txt',sigma_map,fmt="%.4e",delimiter='\t')
-
-    del Disk,sigma_map,vorticity_map
+    del Disk,vorticity_map
 
     dd=ds.all_data()
     width = (float(L), 'pc')
     print('### Projection ###')
     disk_dd = dd.cut_region(["obj['Disk_H'].in_units('pc') < 1.0e3"])
-    proj = ds.proj('vorticity_z', 2,data_source=disk_dd,weight_field='density')
+    proj = ds.proj('density', 2,data_source=disk_dd,weight_field='density')
 
     res = [NN, NN]
     frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
@@ -256,9 +250,4 @@ else:
 
     np.savetxt('Maps/'+name_file+'_vort.txt',imvort,fmt="%.4e",delimiter='\t')
 
-    proj = ds.proj('density', 2,data_source=disk_dd,method='integrate')
-    frb = proj.to_frb(width, res, center=[0.5,0.5,0.5])
 
-    imsigma=frb['density'].in_units('Msun/pc**2')
-
-    np.savetxt('Maps/'+name_file+'_sigma.txt',imsigma,fmt="%.4e",delimiter='\t')

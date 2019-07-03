@@ -5,7 +5,7 @@
 #include <string.h>
 #include <mpi.h>
 
-#define steps 10
+#define steps 72
 #define Nint 2000
 #define PI 3.14159265
 #define tiny 1e-16
@@ -100,6 +100,7 @@ double func4(double r, double n1, double n2, double pmin, double pc ,double f1){
 float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbins, float *delta, double dx){
   n1=n1-1;
   n2=n2-1;
+  double aux;
   //srand(time(0));
   int Npoints, i, j;
   float random,angle;
@@ -128,6 +129,8 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
       g1=log(pc/pmin);
       g2=log(pmax/pc)*pow(pc,2.0*(n2-n1));}
 
+
+    if(isnan(f2)||isnan(g2)){f2=0;g2=0;}
     A=f1+f2;
     B=g1+g2;
 
@@ -136,12 +139,22 @@ float *sigmas(double n1, double n2, double pc, double pmin, double pmax, int Nbi
       sum=0.0;
       Npoints= 10+(int) Nint*(pmax-pmin)*delta[j];
       for(i = 0; i < Npoints; i++){
+
         random = rand()/maximo;
         angle  = 0.5*PI*rand()/maximo;
         random = func1(random*A,n1,n2,pmin,pc,f1);
         p=random*cos(angle);
         q=random*sin(angle);
-        sum=sum+sin_delta(p,q,delta[j]);}
+
+        while(isnan(p)||isnan(q)||isinf(q)||isinf(q)){
+                random = rand()/maximo;
+                angle  = 0.5*PI*rand()/maximo;
+                random = func1(random*A,n1,n2,pmin,pc,f1);
+                p=random*cos(angle);
+                q=random*sin(angle);}
+        aux=sin_delta(p,q,delta[j]);
+        if(isnan(aux))printf("%.3e\t %.3e\t %.3e\t %.3e\t %.3e\n",aux,random,p,q,delta[j]);
+        sum=sum+aux;}
       result[j]=2*PI*sqrt(A*sum/(1.0*B*Npoints))*dx*dx;}
   }
   else if (n1==1.0 && n2!=1.0){
@@ -258,6 +271,7 @@ double walker(char *name,double n1_min , double n1_max, double n2_min , double n
 	/***********************
 	 * First random numbers
 	************************/
+    printf("steps %d\n",steps);
     for(i1=low;i1<=upp;i1++){
         printf("indice , id %d\t %d\n",i1,id);
     for(i2=0;i2<steps;i2++){
@@ -323,6 +337,8 @@ pc_max=0.5*pmax;
 dx=L/(1.0*N);
 
 for(i=0;i<Nbins;i++)delta[i]=delta[i]*dx;
+for(i=0;i<Nbins;i++)printf("%f\t",delta[i]);
+printf("\n");
 
 ierr = MPI_Init(&argc, &argv);
 
